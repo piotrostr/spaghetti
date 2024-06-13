@@ -1,4 +1,5 @@
 import { Gemini } from "../gemini";
+import { TrimmedProduct } from "../types";
 import { searchProduct } from "./search";
 
 // TODOs
@@ -37,17 +38,20 @@ import { searchProduct } from "./search";
     );
 
     const results = await Promise.all(productResultsPromises);
-    const postprocessedResults = results.map((result) =>
-      result["data"]["productSearch"]["results"].map((r) => ({
-        id: r["id"],
-        sku: r["sku"],
-        name: r["name"],
-        price: r["price"].value,
-        slug: r["slug"],
-      }))
+    const postprocessedResults: Array<Array<TrimmedProduct>> = results.map(
+      (result) =>
+        result["data"]["productSearch"]["results"].map((r) => ({
+          id: r["id"],
+          sku: r["sku"],
+          name: r["name"],
+          url: "https://delio.com.pl/products/" + r["slug"],
+          // price: r["price"].value,
+        }))
     );
     console.log(recipe);
     console.log(postprocessedResults);
+
+    await gemini.makeShoppingList(recipe, postprocessedResults);
   } catch (error) {
     console.error("Error", error);
   }

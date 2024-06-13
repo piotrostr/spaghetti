@@ -16,3 +16,12 @@ export interface Ingredient {
 
 export type Instruction = string;
 export type ID = string;
+
+export interface TrimmedProduct {
+  id: string;
+  sku: string;
+  name: string;
+  url: string;
+  // TODO
+  // price: number
+}
