@@ -22,6 +22,7 @@ export interface TrimmedProduct {
   sku: string;
   name: string;
   url: string;
+  description: string;
   // TODO
   // price: number
 }

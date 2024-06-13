@@ -3,6 +3,7 @@ import {
   type GenerateContentResult,
   type GenerativeModel,
 } from "@google-cloud/vertexai";
+import { logger } from "./src/logger";
 import { TrimmedProduct, type Recipe } from "./types";
 
 export class Gemini {
@@ -22,7 +23,7 @@ export class Gemini {
     const text = response.response.candidates?.map(
       (c) => c.content.parts[0]
     )[0]["text"];
-    console.debug(text);
+    logger.debug(text);
     if (!text) {
       throw new Error("Invalid response from model");
     }
@@ -30,8 +31,7 @@ export class Gemini {
   }
 
   async makeRecipe(rawRecipe: string): Promise<Recipe> {
-    const response = await this.model.generateContent(
-      `
+    const prompt = `
 			jestem szefem kuchni. chce utworzyc szybkie przepisy z przeliczaniem
 			jednostek. potrzebuje precyzyjnej informacji z podzialem na ilosc porcji i
 			osob.
@@ -75,9 +75,10 @@ export class Gemini {
 			
 			zwracaj tylko JSON, aby można go było natychmiast przetworzyć na obiekt,
 			odpowiedz powinna zawierac tylko poprawny ciąg JSON
-			`
-    );
-    console.debug(`makeRecipe response: ${JSON.stringify(response)}`);
+			`;
+    logger.debug(prompt);
+    const response = await this.model.generateContent(prompt);
+    logger.debug(`makeRecipe response: ${JSON.stringify(response)}`);
     // TODO hacky, should use a JSON validator and handle errors if model
     // does not return a valid response, should not be hard-indexing
     const text = this._parseText(response);
@@ -88,7 +89,8 @@ export class Gemini {
     recipe: Recipe,
     topProducts: Array<Array<TrimmedProduct>>
     // userContext: string TODO czy uzytkownik jest wege, czy ma alergeny itd
-  ) /* Promise<Array<TrimmedProduct>> */ {
+  ): Promise<string> /* Promise<Array<TrimmedProduct>> */ {
+    // TODO fix: this blocks stuff to safety reasons
     const response = await this.model.generateContent(`
 		Na podstawie ponizszego przepisu i listy produktow, wybierz najbardziej
 		pasujace produkty dla kazdego skladnika
@@ -114,6 +116,6 @@ export class Gemini {
     // TODO hacky, should use a JSON validator and handle errors if model
     // does not return a valid response, should not be hard-indexing
     const text = this._parseText(response);
-    console.debug(`makeShoppingList response: ${text}`);
+    return text;
   }
 }
