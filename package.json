@@ -1,5 +1,18 @@
 {
+  "name": "Google AI demo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "test": "ts-mocha 'test/**/*.ts'",
+    "watch": "tsc -w",
+    "test:watch": "ts-mocha -w 'test/**/*.ts'"
+  },
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "ts-node": "^10.9.1",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "ts-mocha": "^10.0.0"
   }
 }
